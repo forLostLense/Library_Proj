@@ -38,16 +38,13 @@ def calculateOverlap(dayStart1, hourStart1, minStart1, dayStart2, hourStart2, mi
 def findCollaboration(rows, UserD):
 	for i in range(len(rows)):
 		j = i
-		if i % 10 == 0:
-			print (i)
 		while j < len(rows):
 			iRow = rows[i]
 			jRow = rows[j]
 			overlap = calculateOverlap(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[6]), int(jRow[7]), int(jRow[8]), int(iRow[11]), int(iRow[13]), int(iRow[14]), int(jRow[11]), int(jRow[13]), int(jRow[14]))
 			if overlap > 0:
 				# Add session to each user
-				if iRow[1] in UserD:
-					iDict = UserD[iRow[1]]
+3					iDict = UserD[iRow[1]]
 					if jRow[1] in iDict:
 						UserD[iRow[1]][jRow[1]].append(overlap)
 					else:
