@@ -107,7 +107,7 @@ def findCollaboration(rows, UserD):
             iRow = rows[i]
             jRow = rows[j]
             overlap = calculateOverlap(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[6]), int(jRow[7]), int(jRow[8]), int(iRow[11]), int(iRow[13]), int(iRow[14]), int(jRow[11]), int(jRow[13]), int(jRow[14]))
-            if overlap > 30:
+            if overlap > 30 and iRow[1] != jRow[1]:
                 # Add session to each user
                 if iRow[1] in UserD:
                     iDict = UserD[iRow[1]]
