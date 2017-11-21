@@ -107,7 +107,7 @@ def findCollaboration(rows, UserD):
             iRow = rows[i]
             jRow = rows[j]
             overlap = calculateOverlap(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[6]), int(jRow[7]), int(jRow[8]), int(iRow[11]), int(iRow[13]), int(iRow[14]), int(jRow[11]), int(jRow[13]), int(jRow[14]))
-            if overlap > 30 and iRow[1] != jRow[1]:
+            if overlap > 30:
                 # Add session to each user
                 if iRow[1] in UserD:
                     iDict = UserD[iRow[1]]
@@ -142,7 +142,7 @@ def findCollaboration(rows, UserD):
 # jRow = ["1419","193b8bff00bdc347489961f3b3b0528ea37a30ceb8ae574bf4d9cc3b73a030b6","cuc","CUC-HON-2-S-RTLS",2016,8,1,7,42,0,8,1,2016,8,int("02")]
 # print (overlap(iRow[6], iRow[7], iRow[8], jRow[6], jRow[7], jRow[8], iRow[11], iRow[13], iRow[14], jRow[11], jRow[13], jRow[14]))
 
-UserD = main3(9)
+UserD = main()
 with open('collaboration_dic.pickle', 'wb') as handle:
     pickle.dump(UserD, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -152,4 +152,4 @@ with open('collaboration_dic.pickle', 'wb') as handle:
 with open('collaboration_dic.pickle', 'rb') as handle:
     b = pickle.load(handle)
 
-#print (len(UserD.keys()))
+print (len(UserD.keys()))

@@ -14,7 +14,7 @@ def heatmap_month(locationlist, intensity):
     intensity = [item for sublist in intensity for item in sublist]
     M = np.zeros((max(x) + 1, max(y) + 1))
     M[x, y] = intensity
-    # print(M)
+    print(M)
 
     fig, ax = plt.subplots()
     axes = plt.gca()
@@ -58,10 +58,26 @@ def plots():
     for i in range(6,13):
         intensity_hour, locationList = data.main3(str(i))
         heatmap_hour(locationList, intensity_hour, str(i))
+
+
+def sumList(intensity, num):
+    sumList = []
+    for i in range(num):
+        num = sum([sublist[i] for sublist in intensity])
+        sumList.append(num)
+    return sumList
+
+def hour_list(intensity_hour):
+    hourList = [0 for i in range(24)]
+    for j in range(6,13):
+        list = sumList(intensity_hour, 24)
+        hourList = [hourList[k]+ list[k] for k in range(24)]
+    return hourList
 #####################################
 # Main Function for Plotting
 #####################################
 # intensity_month, locationList = data.main2()
+# sum_of_month(intensity_month)
 # heatmap_month(locationList, intensity_month)
 # print(data.main3(9))
-plots()
+# plots()
