@@ -73,6 +73,43 @@ def hour_list(intensity_hour):
         list = sumList(intensity_hour, 24)
         hourList = [hourList[k]+ list[k] for k in range(24)]
     return hourList
+
+def collaboration_by_school(schools):
+    schoolList = []
+    for school in schools:
+        length = data.main4(school)
+        schoolList.append(length)
+        print(length)
+
+    y_pos = np.arange(len(schools))
+    plt.bar(y_pos, schoolList, align = 'center', alpha = 0.5)
+    plt.xticks(y_pos, ['HMC', 'POMONA', 'CMC', 'SCRIPPS', 'PITZER', 'CGU', 'KGI'])
+    plt.ylabel("Number of Collaborations")
+    plt.title("Number of Collaborations by Campus")
+    
+    # save to file
+    plt.savefig('plots/CampusCollab.png', bbox_inches='tight')
+    plt.show()
+
+
+def percent_collaboration_school(schools):
+    schoolList = []
+    PopList = [829, 1660, 1347, 1057, 1089, 2261, 429]
+    for i in range(len(schools)):
+        length = 100*data.main4(schools[i])/(PopList[i])
+        print(length)
+        schoolList.append(length)
+
+    y_pos = np.arange(len(schools))
+    plt.bar(y_pos, schoolList, align = 'center', alpha = 0.5)
+    plt.xticks(y_pos, ['HMC', 'POMONA', 'CMC', 'SCRIPPS', 'PITZER', 'CGU', 'KGI'])
+    plt.ylabel("Percentage of Collaborations")
+    plt.title("Number of Collaborations Normalized by Population of School")
+    
+    # save to file
+    plt.savefig('plots/CampusCollabPercent.png', bbox_inches='tight')
+    plt.show()
+
 #####################################
 # Main Function for Plotting
 #####################################
@@ -81,3 +118,6 @@ def hour_list(intensity_hour):
 # heatmap_month(locationList, intensity_month)
 # print(data.main3(9))
 # plots()
+schools = ['hmc', 'pom', 'cmc', 'scr', 'pit', 'cgu', 'kgi']
+collaboration_by_school(schools)
+percent_collaboration_school(schools)
