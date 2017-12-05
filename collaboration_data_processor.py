@@ -4,7 +4,7 @@ import pickle
 import numpy
 
 # change the path to yours
-directory = "/Users/IvyLiu/Desktop/Sorted_Data/"
+directory = "/Users/kinjalshah/Downloads/Sorted_Data/"
 def main():
     UserD = {}
     for root,dirs,files in os.walk(directory):
@@ -85,6 +85,24 @@ def main3(month):
                 List.append(eachLocation)
                 f.close()
     return List, LocationList
+
+# returns a list of number of collaborations per school
+def main4(school):
+    for root,dirs,files in os.walk(directory):
+        for file in files:
+            UserD = {}
+            if file.endswith(".csv"):
+                f=open(directory + file, 'r')
+                filereader = csv.reader(f)
+                listrows = list(filereader)
+                rows = []
+                for row in listrows:
+                    if row[1] != "-" and row[2] == str(school):
+                        rows.append(row)
+                rows = rows[1:]
+                UserD = findCollaboration(rows, UserD)
+                f.close()
+    return len(UserD)
 
 # call this function from main
 def calculateOverlap(dayStart1, hourStart1, minStart1, dayStart2, hourStart2, minStart2, dayEnd1, hourEnd1, minEnd1, dayEnd2, hourEnd2, minEnd2):
@@ -183,7 +201,7 @@ def main4():
 # jRow = ["1419","193b8bff00bdc347489961f3b3b0528ea37a30ceb8ae574bf4d9cc3b73a030b6","cuc","CUC-HON-2-S-RTLS",2016,8,1,7,42,0,8,1,2016,8,int("02")]
 # print (overlap(iRow[6], iRow[7], iRow[8], jRow[6], jRow[7], jRow[8], iRow[11], iRow[13], iRow[14], jRow[11], jRow[13], jRow[14]))
 
-# UserD = main3(9)
+# UserD = main()
 # with open('collaboration_dic.pickle', 'wb') as handle:
 #     pickle.dump(UserD, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -199,3 +217,7 @@ def getDict():
 
 
 #overlaps, numCollabs = main4()
+# with open('collaboration_dic.pickle', 'rb') as handle:
+#     b = pickle.load(handle)
+
+# print (len(UserD.keys()))
