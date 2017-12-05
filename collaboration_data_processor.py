@@ -1,6 +1,7 @@
 import csv
 import os
 import pickle
+import numpy
 
 # change the path to yours
 directory = "/Users/IvyLiu/Desktop/Sorted_Data/"
@@ -101,11 +102,16 @@ def calculateOverlap(dayStart1, hourStart1, minStart1, dayStart2, hourStart2, mi
     return(overlap)
 
 def findCollaboration(rows, UserD):
-    for i in range(len(rows)):
-        j = i
+    for i in range(50):
+        j = i+1
         while j < len(rows):
             iRow = rows[i]
             jRow = rows[j]
+
+            if iRow[1] == jRow[1]:
+                print(iRow[1])
+                continue
+
             overlap = calculateOverlap(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[6]), int(jRow[7]), int(jRow[8]), int(iRow[11]), int(iRow[13]), int(iRow[14]), int(jRow[11]), int(jRow[13]), int(jRow[14]))
             if overlap > 30:
                 # Add session to each user
@@ -132,6 +138,41 @@ def findCollaboration(rows, UserD):
     return UserD
 
 
+def getUserMap(d, sessionCutoff, timeCutoff):
+    collaborators = list(d.keys())
+    print("COLLABORATORS", len(d))
+    overlaps = numpy.zeros(shape=(len(d), len(d)))
+    numCollabs = numpy.zeros(shape=(len(d), 1))
+    for i in range(len(collaborators)):
+        if i % 1000 == 0:
+            print("LOOPIN'", i)
+        for j in range(i+1, len(collaborators)):
+            iDict = d[collaborators[i]]
+            if collaborators[j] in iDict:
+                ijList = iDict[collaborators[j]]
+                if len(ijList) >= sessionCutoff:
+                    overlapTime = sum(ijList)
+                    if overlapTime >= timeCutoff:
+                        #print("Got one!", overlapTime)
+                        overlaps[i, j] = overlapTime
+                        overlaps[j, i] = overlapTime
+                        numCollabs[i] += 1
+                        numCollabs[j] += 1
+    print(len(overlaps))
+    print(overlaps)
+    overlaps = overlaps[~numpy.all(overlaps==0, axis=1)]
+    print(len(overlaps))
+    return (overlaps, numCollabs)
+
+
+
+
+
+def main4():
+    d = getDict()
+    print("starting")
+    return getUserMap(d, 3, 120)
+
 #####################################
 # Test for overlap calculation
 #####################################
@@ -142,14 +183,19 @@ def findCollaboration(rows, UserD):
 # jRow = ["1419","193b8bff00bdc347489961f3b3b0528ea37a30ceb8ae574bf4d9cc3b73a030b6","cuc","CUC-HON-2-S-RTLS",2016,8,1,7,42,0,8,1,2016,8,int("02")]
 # print (overlap(iRow[6], iRow[7], iRow[8], jRow[6], jRow[7], jRow[8], iRow[11], iRow[13], iRow[14], jRow[11], jRow[13], jRow[14]))
 
-UserD = main3(9)
-with open('collaboration_dic.pickle', 'wb') as handle:
-    pickle.dump(UserD, handle, protocol=pickle.HIGHEST_PROTOCOL)
+# UserD = main3(9)
+# with open('collaboration_dic.pickle', 'wb') as handle:
+#     pickle.dump(UserD, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 #####################################
 # To load pickle
 #####################################
-with open('collaboration_dic.pickle', 'rb') as handle:
-    b = pickle.load(handle)
+def getDict():
+    with open('collaboration_dic.pickle', 'rb') as handle:
+        b = pickle.load(handle)
+        return b
 
 #print (len(UserD.keys()))
+
+
+#overlaps, numCollabs = main4()
