@@ -24,12 +24,12 @@ def heatmap_month(locationlist, intensity):
     plt.ylabel('MONTH')
     plt.xlabel('LOCATION')
     ax.imshow(M)
-    show()
+    # show()
 
     # save to file
     fig.savefig('plots/MonthLocationHeatMap.png', bbox_inches='tight')
     # and show it on the screen
-    show()
+    # show()
 
 def heatmap_hour(locationlist, intensity, month):
     x = [int(i) for x in range(31) for i in range(0,24)]
@@ -86,7 +86,7 @@ def collaboration_by_school(schools):
     plt.xticks(y_pos, ['HMC', 'POMONA', 'CMC', 'SCRIPPS', 'PITZER', 'CGU', 'KGI'])
     plt.ylabel("Number of Collaborations")
     plt.title("Number of Collaborations by Campus")
-    
+
     # save to file
     plt.savefig('plots/CampusCollab.png', bbox_inches='tight')
     plt.show()
@@ -105,7 +105,7 @@ def percent_collaboration_school(schools):
     plt.xticks(y_pos, ['HMC', 'POMONA', 'CMC', 'SCRIPPS', 'PITZER', 'CGU', 'KGI'])
     plt.ylabel("Percentage of Collaborations")
     plt.title("Number of Collaborations Normalized by Population of School")
-    
+
     # save to file
     plt.savefig('plots/CampusCollabPercent.png', bbox_inches='tight')
     plt.show()
@@ -114,10 +114,11 @@ def percent_collaboration_school(schools):
 # Main Function for Plotting
 #####################################
 # intensity_month, locationList = data.main2()
-# sum_of_month(intensity_month)
+#
+#
 # heatmap_month(locationList, intensity_month)
-# print(data.main3(9))
+
 # plots()
 schools = ['hmc', 'pom', 'cmc', 'scr', 'pit', 'cgu', 'kgi']
-collaboration_by_school(schools)
+# collaboration_by_school(schools)
 percent_collaboration_school(schools)
