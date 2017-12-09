@@ -1,6 +1,7 @@
 import collaboration_data_processor as data
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import plotly.plotly as py
 import plotly.tools as tls
 import plotly.graph_objs as go
@@ -8,7 +9,6 @@ from pylab import figure, show
 
 
 def heatmap_month(locationlist, intensity):
-    # x = ['6','7','8','9','10','11','12']
     x = [int(i) for x in range(31) for i in range(6,13)]
     y = [int(x) for x in range(1, len(locationlist)+1) for i in range(7)]
     intensity = [item for sublist in intensity for item in sublist]
@@ -29,7 +29,7 @@ def heatmap_month(locationlist, intensity):
     # save to file
     fig.savefig('plots/MonthLocationHeatMap.png', bbox_inches='tight')
     # and show it on the screen
-    # show()
+    show()
 
 def heatmap_hour(locationlist, intensity, month):
     x = [int(i) for x in range(31) for i in range(0,24)]
@@ -114,11 +114,9 @@ def percent_collaboration_school(schools):
 # Main Function for Plotting
 #####################################
 # intensity_month, locationList = data.main2()
-#
-#
 # heatmap_month(locationList, intensity_month)
-
+# sumList(intensity_month, 7)
 # plots()
-schools = ['hmc', 'pom', 'cmc', 'scr', 'pit', 'cgu', 'kgi']
+# schools = ['hmc', 'pom', 'cmc', 'scr', 'pit', 'cgu', 'kgi']
 # collaboration_by_school(schools)
-percent_collaboration_school(schools)
+# percent_collaboration_school(schools)
