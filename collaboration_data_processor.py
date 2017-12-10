@@ -4,8 +4,8 @@ import pickle
 import numpy
 
 # change the path to yours
-directory = "/Users/Aivilo Sniktaw/Documents/School/Junior Year/Stats/Library_Proj/csv_location/"
-def main():
+directory = "/Users/IvyLiu/Desktop/Sorted_Data/"
+def main(threshold):
     UserD = {}
     for root,dirs,files in os.walk(directory):
         for file in files:
@@ -17,9 +17,9 @@ def main():
                 for row in listrows:
                     if row[1] != "-":
                         rows.append(row)
-                rows = rows[1:]
-                UserD = findCollaboration(rows, UserD)
-                f.close()
+               rows = rows[1:]
+               UserD = findCollaboration(rows, UserD, threshold)
+               f.close()
     return UserD
 
 
@@ -28,14 +28,10 @@ def main2():
     List = []
     LocationList = []
     for root,dirs,files in os.walk(directory):
-        i = 0
         for file in files:
-
-            if i > 5:
-                break
-            LocationList.append(file)
             UserD = {}
             if file.endswith(".csv"):
+                LocationList.append(file)
                 f=open(directory + file, 'r')
                 filereader = csv.reader(f)
                 listrows = list(filereader)
@@ -47,7 +43,7 @@ def main2():
                         if row[1] != "-" and row[5] == m:
                             rows.append(row)
                     rows = rows[1:]
-                    UserD = findCollaboration(rows, UserD)
+                    UserD = findCollaboration(rows, UserD, 30)
                     print(len(UserD))
                     eachLocation.append(len(UserD))
                     UserD = {}
@@ -55,9 +51,6 @@ def main2():
                 print(eachLocation)
                 List.append(eachLocation)
                 f.close()
-            i += 1
-    # print(LocationList)
-    # print(List)
     return List, LocationList
 
 def main3(month):
@@ -65,9 +58,9 @@ def main3(month):
     LocationList = []
     for root,dirs,files in os.walk(directory):
         for file in files:
-            LocationList.append(file)
             UserD = {}
             if file.endswith(".csv"):
+                LocationList.append(file)
                 f=open(directory + file, 'r')
                 filereader = csv.reader(f)
                 listrows = list(filereader)
@@ -81,7 +74,7 @@ def main3(month):
                         elif t== 0 and row[7] == 24:
                             rows.append(row)
                     rows = rows[1:]
-                    UserD = findCollaboration(rows, UserD)
+                    UserD = findCollaboration(rows, UserD, 30)
                     print(len(UserD))
                     eachLocation.append(len(UserD))
                     UserD = {}
@@ -105,7 +98,7 @@ def main4(school):
                     if row[1] != "-" and row[2] == str(school):
                         rows.append(row)
                 rows = rows[1:]
-                UserD = findCollaboration(rows, UserD)
+                UserD = findCollaboration(rows, UserD, 30)
                 f.close()
     return len(UserD)
 
@@ -142,10 +135,7 @@ def isLater(day1, hour1, min1, day2, hour2, min2):
 
     return False
 
-
-
-def findCollaboration(rows, UserD):
-    print("collab")
+def findCollaboration(rows, UserD, threshold):
     for i in range(len(rows)):
         if i % 100 == 0:
             print(i)
@@ -163,7 +153,7 @@ def findCollaboration(rows, UserD):
                 break
 
             overlap = calculateOverlap(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[6]), int(jRow[7]), int(jRow[8]), int(iRow[12]), int(iRow[14]), int(iRow[15]), int(jRow[12]), int(jRow[14]), int(jRow[15]))
-            if overlap > 30:
+            if overlap > threshold:
                 # Add session to each user
                 if iRow[1] in UserD:
                     iDict = UserD[iRow[1]]
@@ -225,14 +215,7 @@ def main4():
 #####################################
 # Test for overlap calculation
 #####################################
-# "","UUID","campus","WAPID","connect_year","connect_month","connect_day",
-# "connect_hour","connect_minute","connect_dow","disconnect_month","disconnect_day","disconnect_year","disconnect_hour",
-# # "disconnect_minute"
-# iRow = ["1019","0ab358f3211fb7268c46b226dc6ad05e837cec862d89a5a57a0a08c51ec98ffc","cuc","CUC-HON-2-S-RTLS",2016,8,1,7,26,0,8,1,2016,10,33]
-# jRow = ["1419","193b8bff00bdc347489961f3b3b0528ea37a30ceb8ae574bf4d9cc3b73a030b6","cuc","CUC-HON-2-S-RTLS",2016,8,1,7,42,0,8,1,2016,8,int("02")]
-# print (overlap(iRow[6], iRow[7], iRow[8], jRow[6], jRow[7], jRow[8], iRow[11], iRow[13], iRow[14], jRow[11], jRow[13], jRow[14]))
-
-# UserD = main()
+# UserD = main(30)
 # with open('collaboration_dic.pickle', 'wb') as handle:
 #     pickle.dump(UserD, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
