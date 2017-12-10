@@ -4,22 +4,26 @@ import pickle
 import numpy
 
 # change the path to yours
-directory = "/Users/kinjalshah/Downloads/Sorted_Data/"
+directory = "/Users/Aivilo Sniktaw/Documents/School/Junior Year/Stats/Library_Proj/csv_location/"
 def main():
     UserD = {}
+    i=0;
     for root,dirs,files in os.walk(directory):
         for file in files:
-           if file.endswith(".csv"):
-               f=open(directory + file, 'r')
-               filereader = csv.reader(f)
-               listrows = list(filereader)
-               rows = []
-               for row in listrows:
+            if i > 0:
+                break
+            if file.endswith(".csv"):
+                f=open(directory + file, 'r')
+                filereader = csv.reader(f)
+                listrows = list(filereader)
+                rows = []
+                for row in listrows:
                     if row[1] != "-":
                         rows.append(row)
-               rows = rows[1:]
-               UserD = findCollaboration(rows, UserD)
-               f.close()
+                rows = rows[1:]
+                UserD = findCollaboration(rows, UserD)
+                f.close()
+                i += 1
     return UserD
 
 
@@ -28,7 +32,11 @@ def main2():
     List = []
     LocationList = []
     for root,dirs,files in os.walk(directory):
+        i = 0
         for file in files:
+
+            if i > 5:
+                break
             LocationList.append(file)
             UserD = {}
             if file.endswith(".csv"):
@@ -51,6 +59,7 @@ def main2():
                 print(eachLocation)
                 List.append(eachLocation)
                 f.close()
+            i += 1
     # print(LocationList)
     # print(List)
     return List, LocationList
@@ -119,18 +128,41 @@ def calculateOverlap(dayStart1, hourStart1, minStart1, dayStart2, hourStart2, mi
     overlap = firstEnd - lastStart
     return(overlap)
 
+def isLater(day1, hour1, min1, day2, hour2, min2)
+    if day2 > day1:
+        return True
+
+    if day1 > day2:
+        return False
+
+    if hour2 > hour1:
+        return True
+
+    if hour1 > hour2:
+        return False
+
+    if min2 > min1:
+        return True
+
+    return False
+
+
+
 def findCollaboration(rows, UserD):
-    for i in range(50):
+    for i in range(len(rows)):
         j = i+1
         while j < len(rows):
             iRow = rows[i]
             jRow = rows[j]
 
             if iRow[1] == jRow[1]:
-                print(iRow[1])
+                j += 1
                 continue
 
-            overlap = calculateOverlap(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[6]), int(jRow[7]), int(jRow[8]), int(iRow[11]), int(iRow[13]), int(iRow[14]), int(jRow[11]), int(jRow[13]), int(jRow[14]))
+            if isLater(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[16]), int(jRow[14]), int(jRow[15])):
+                break
+
+            overlap = calculateOverlap(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[6]), int(jRow[7]), int(jRow[8]), int(iRow[12]), int(iRow[14]), int(iRow[15]), int(jRow[12]), int(jRow[14]), int(jRow[15]))
             if overlap > 30:
                 # Add session to each user
                 if iRow[1] in UserD:
@@ -150,8 +182,7 @@ def findCollaboration(rows, UserD):
                         UserD[jRow[1]][iRow[1]] = [overlap]
                 else:
                     UserD[jRow[1]] = {iRow[1]: [overlap]}
-            else:
-                break
+
             j += 1
     return UserD
 
