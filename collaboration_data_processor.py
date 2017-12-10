@@ -7,11 +7,8 @@ import numpy
 directory = "/Users/Aivilo Sniktaw/Documents/School/Junior Year/Stats/Library_Proj/csv_location/"
 def main():
     UserD = {}
-    i=0;
     for root,dirs,files in os.walk(directory):
         for file in files:
-            if i > 0:
-                break
             if file.endswith(".csv"):
                 f=open(directory + file, 'r')
                 filereader = csv.reader(f)
@@ -23,7 +20,6 @@ def main():
                 rows = rows[1:]
                 UserD = findCollaboration(rows, UserD)
                 f.close()
-                i += 1
     return UserD
 
 
@@ -128,7 +124,7 @@ def calculateOverlap(dayStart1, hourStart1, minStart1, dayStart2, hourStart2, mi
     overlap = firstEnd - lastStart
     return(overlap)
 
-def isLater(day1, hour1, min1, day2, hour2, min2)
+def isLater(day1, hour1, min1, day2, hour2, min2):
     if day2 > day1:
         return True
 
@@ -149,7 +145,10 @@ def isLater(day1, hour1, min1, day2, hour2, min2)
 
 
 def findCollaboration(rows, UserD):
+    print("collab")
     for i in range(len(rows)):
+        if i % 100 == 0:
+            print(i)
         j = i+1
         while j < len(rows):
             iRow = rows[i]
@@ -159,7 +158,8 @@ def findCollaboration(rows, UserD):
                 j += 1
                 continue
 
-            if isLater(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[16]), int(jRow[14]), int(jRow[15])):
+            # compare end time of first and start time of second
+            if isLater(int(jRow[10]), int(jRow[7]), int(jRow[8]), int(iRow[16]), int(iRow[14]), int(iRow[15])):
                 break
 
             overlap = calculateOverlap(int(iRow[6]), int(iRow[7]), int(iRow[8]), int(jRow[6]), int(jRow[7]), int(jRow[8]), int(iRow[12]), int(iRow[14]), int(iRow[15]), int(jRow[12]), int(jRow[14]), int(jRow[15]))
