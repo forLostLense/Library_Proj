@@ -55,10 +55,12 @@ def heatmap_hour(locationlist, intensity, month):
     # show()
 
 def plots():
+    hourList = []
     for i in range(6,13):
         intensity_hour, locationList = data.main3(str(i))
         heatmap_hour(locationList, intensity_hour, str(i))
-
+        hourList.append( hour_list(intensity_hour) )
+    return hourList[-1]
 
 def sumList(intensity, num):
     sumList = []
