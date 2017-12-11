@@ -4,8 +4,8 @@ import pickle
 import numpy
 
 # change the path to yours
-#directory = "/Users/IvyLiu/Desktop/Sorted_Data/"
-directory = "/Users/Aivilo Sniktaw/Documents/School/Junior Year/Stats/Library_Proj/csv_location/"
+directory = "/Users/IvyLiu/Desktop/Sorted_Data/"
+# directory = "/Users/Aivilo Sniktaw/Documents/School/Junior Year/Stats/Library_Proj/csv_location/"
 def main(threshold):
     UserD = {}
     for root,dirs,files in os.walk(directory):
@@ -30,7 +30,7 @@ def main2():
     LocationList = []
     for root,dirs,files in os.walk(directory):
         for file in files:
-            file = files[0]
+            # file = files[0]
             UserD = {}
             if file.endswith(".csv"):
                 LocationList.append(file)
@@ -121,8 +121,8 @@ def calculateOverlap(dayStart1, hourStart1, minStart1, dayStart2, hourStart2, mi
 
 def findCollaboration(rows, UserD, threshold):
     for i in range(len(rows)):
-        if i % 100 == 0:
-            print(i)
+        # if i % 100 == 0:
+        #     print(i)
         j = i+1
         while j < len(rows):
             iRow = rows[i]
@@ -131,7 +131,7 @@ def findCollaboration(rows, UserD, threshold):
             if iRow[1] == jRow[1]:
                 j += 1
                 continue
-            
+
             overlap = calculateOverlap(int(iRow[10]), int(iRow[7]), int(iRow[8]), int(jRow[10]), int(jRow[7]), int(jRow[8]), int(iRow[16]), int(iRow[14]), int(iRow[15]), int(jRow[16]), int(jRow[14]), int(jRow[15]))
             if overlap > threshold:
                 # Add session to each user
@@ -153,7 +153,7 @@ def findCollaboration(rows, UserD, threshold):
                 else:
                     UserD[jRow[1]] = {iRow[1]: [overlap]}
             j += 1
-            
+
             if overlap < 0:
                 break
     return UserD
@@ -186,10 +186,7 @@ def getUserMap(d, sessionCutoff, timeCutoff):
     return (overlaps, numCollabs)
 
 
-
-
-
-def main4():
+def main5():
     d = getDict()
     print("starting")
     return getUserMap(d, 3, 120)
@@ -197,9 +194,9 @@ def main4():
 #####################################
 # Test for overlap calculation
 #####################################
-# UserD = main(30)
-# with open('collaboration_dic.pickle', 'wb') as handle:
-#     pickle.dump(UserD, handle, protocol=pickle.HIGHEST_PROTOCOL)
+UserD = main(0)
+with open('collaboration_dic.pickle', 'wb') as handle:
+    pickle.dump(UserD, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 #####################################
 # To load pickle
@@ -216,4 +213,4 @@ def getDict():
 # with open('collaboration_dic.pickle', 'rb') as handle:
 #     b = pickle.load(handle)
 
-# print (len(UserD.keys()))
+print (len(UserD.keys()))

@@ -86,7 +86,7 @@ def collaboration_by_school(schools):
     plt.xticks(y_pos, ['HMC', 'POMONA', 'CMC', 'SCRIPPS', 'PITZER', 'CGU', 'KGI'])
     plt.ylabel("Number of Collaborations")
     plt.title("Number of Collaborations by Campus")
-    
+
     # save to file
     plt.savefig('plots/CampusCollab.png', bbox_inches='tight')
     plt.show()
@@ -105,19 +105,47 @@ def percent_collaboration_school(schools):
     plt.xticks(y_pos, ['HMC', 'POMONA', 'CMC', 'SCRIPPS', 'PITZER', 'CGU', 'KGI'])
     plt.ylabel("Percentage of Collaborations")
     plt.title("Number of Collaborations Normalized by Population of School")
-    
+
     # save to file
     plt.savefig('plots/CampusCollabPercent.png', bbox_inches='tight')
     plt.show()
+
+def cutoff(max_threshold):
+    x = []
+    y = []
+    for i in range(max_threshold):
+        UserD = data.main(i)
+        num = len(UserD.keys())
+        y.append(num)
+        print(num)
+        x.append(i)
+    return x, y
+
+def cutoffPlot(x, y):
+    plt.plot(x,y,'.r-')
+    plt.xlabel("Threshold")
+    plt.ylabel("Number of Total Collaborations")
+    plt.title("Number of Collaborations vs Threshold")
+
+    # save to file
+    plt.savefig('plots/cutoffPlot.png', bbox_inches='tight')
+    plt.show()
+
+
 
 #####################################
 # Main Function for Plotting
 #####################################
 # intensity_month, locationList = data.main2()
-# sum_of_month(intensity_month)
 # heatmap_month(locationList, intensity_month)
-# print(data.main3(9))
 # plots()
-schools = ['hmc', 'pom', 'cmc', 'scr', 'pit', 'cgu', 'kgi']
-collaboration_by_school(schools)
-percent_collaboration_school(schools)
+# schools = ['hmc', 'pom', 'cmc', 'scr', 'pit', 'cgu', 'kgi']
+# collaboration_by_school(schools)
+# percent_collaboration_school(schools)
+# y = [8777, 8777, 8748, 8711, 8665, 8630,8591, 8544,8504, 8455, 8400, 8144,
+# 8002, 7985, 7967, 7956, 7940, 7929, 7913, 7900, 7883,7619, 7319,
+# 7277,7236,7202,7169,7122, 7086, 7064,7043,6916, 6740,
+# 6724, 6708, 6699, 6689, 6673, 6663, 6652, 6642, 6607,
+# 6423, 6400, 6388,6378, 6370,6362, 6353,6345,6330]
+# x = [i for i in range(0, 51)]
+# cutoffPlot(x, y)
