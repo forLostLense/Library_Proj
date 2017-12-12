@@ -1,0 +1,359 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# ```{r}
+# data <- data.frame(unlist(X2016FallSemWireless))
+# ```
+
+
+Function: Removes staff
+Purpose: Staff don't collaborate the way other people do
+```{r}
+print(length(X2016FallSemWireless[,1]))
+wirelessData <- X2016FallSemWireless[filteredFallData$campus != 'cuc',]
+print(length(wirelessData[,1]))
+```
+
+
+Functionality: Plots density curves for each location's signal strenth.
+Purpose: Figure out whether there are certain places where the signal strenth is bad (possibly people connecting to another floor)
+
+```{r}
+plotSigStrength <- function(dataset) {
+  j = 0;
+  myList <- split(dataset, dataset$WAPID)
+  for (i in levels(as.factor(dataset$WAPID))) {
+    # if (j < 4) {
+      my1 <- myList[[i]]
+      signal <- na.omit(my1$avgSigQual)
+      if (length(signal) > 1) {
+        d <- density(na.omit(my1$avgSigQual))
+        plot(d, main=i)
+      } else {
+        print(i)
+      } 
+    }
+    j = j+1
+  # }
+}
+
+```
+
+
+Functionality: Density curves by location, all data (except staff)
+Purpose: try to figure out if people are connecting to other floors
+Results: Most access points have two distince points; one good, one bad. A few access points are just bad
+```{r}
+plotSigStrength(wirelessData)
+```
+
+**Functionality**: Check whether connection bytes and time of 0.0 connections differs  
+**Purpose**: We'd expect people with a zero connection to have much fewer bytes per sec  
+**Result**: Our predictions are correct, although not as much as we had expected.  
+But more importantly, it looks like we've got a bunch of connections with kbps=0.
+Unclear what we should do with this. We should figure out whether this represents actual
+people in the library who just aren't using their computer or whether these are errors.  
+```{r}
+nonzeroConnection <- ifelse(wirelessData$avgSigQual > 0.0, "Nonzero Connection Strength", "Connection Strength = 0")
+# colnames(nonzeroConnection) = c("Connection Strength = 0", "Nonzero Connection Strength")
+print(length(nonzeroConnection))
+boxplot(wirelessData$avgKbps ~ nonzeroConnection, main="Kilobytes Per Second by Average Connection Strength", xlab="", ylab="Average Kbps")
+print("done")
+```
+
+**Functionality**: Trims out people with kbps=0 (just to test)  
+**Purpose**: Want to verify the thing we were trying to do above - checking how
+connectivity patterns differ based on signal quality  
+**Result**: Graphs look almost identical.  This is a good sign! 
+It means we have a bunch of outliers, but that it's not like most of our data is just useless.
+When we zoom in on that range, we see there are diff connection patterns based on signal
+quality.  This makes sense.  
+```{r}
+print(length(wirelessData[,1]))
+wirelessData1a <- wirelessData[wirelessData$avgKbps > 0.0,]
+print(length(wirelessData1a[,1]))
+
+nonzeroConnection <- (wirelessData1a$avgSigQual > 0.0)
+print(length(nonzeroConnection))
+boxplot(wirelessData1a$avgKbps ~ nonzeroConnection)
+
+# Try again, but now cut out big values
+print(length(wirelessData[,1]))
+wirelessData2a <- wirelessData[wirelessData$avgKbps < 300,]
+wirelessData2a <- wirelessData2a[wirelessData2a$avgKbps > 0,]
+print(length(wirelessData2a[,1]))
+
+nonzeroConnection <- ifelse(wirelessData2a$avgSigQual > 0.0, "Nonzero Connection Strength", "Connection Strength = 0",
+                            main="")
+print(length(nonzeroConnection))
+boxplot(wirelessData2a$avgKbps ~ nonzeroConnection)
+
+```
+
+**Functionality**: Trims data which contains connection times over 8 hours, which doesn't seem reasonable. 
+Then makes boxplots of duration time for people with zero/nonzero connection strength.  
+**Purpose**: We want to see if we should exclude the people with bad connections.  Also, it would be useful
+to see how many connection times are wonky.  
+**Result**: Over 10 percent of our data set had bad connection times! We should fix that.
+Also, looks like people w 0 connection strength do connect shorter, but not THAT much shorter.  
+
+```{r}
+# Remove data points with unreasonable connection times
+print(length(wirelessData[,1]))
+wirelessData3a <- wirelessData[wirelessData$duration_mins < 480,]
+wirelessData3a <- wirelessData3a[wirelessData3a$duration_mins >= 0,]
+print(length(wirelessData3a[,1]))
+
+nonzeroConnection <- (wirelessData3a$avgSigQual > 0.0)
+print(length(nonzeroConnection))
+boxplot(wirelessData3a$duration_mins ~ nonzeroConnection)
+```
+
+
+
+
+
+
+**Functionality**: Trim out wireless data with signal = 0  
+**Purpose**: This data is unlikely to be an accurate representation of where this person is working. 
+We should verify this with the library guy though.  
+**Result**: About a quarter of our observations had 0 signal strength  
+```{r}
+print(length(wirelessData[,1]))
+wirelessData1 <- wirelessData[wirelessData$avgSigQual != 0.0,]
+print(length(wirelessData1[,1]))
+plotSigStrength(wirelessData1)
+```
+
+```{r}
+i = 0
+calculateDuration <- function(r) {
+  print(r[20])
+  duration = r[20] - r[12]
+  duration = duration + (r[19] - r[11]) * 60
+  # duration = duration + (r$disconnect_day - r$connect_day) * 24 * 60
+  if (r[17] != r[10]) {
+    if(r[17] > r[10]) {
+      duration = duration + (r[17] - r[10]) * 24 * 60
+    } 
+      #else {
+    #   # Not all months have thirty days, but if we're already on this stage,
+    #   # Then something is already highly weird
+    #   duration = duration + (as.numeric(r[16]) - as.numeric(r[9])) * 30 * 24 * 60
+    # }
+  }
+  i = i + 1
+  return(duration)
+}
+```
+
+
+```{r}
+wirelessData5a <- wirelessData3a
+wirelessData5a$disconnect_day <- ifelse(wirelessData5a$disconnect_hour == '0', wirelessData5a$disconnect_day + 1, wirelessData5a$disconnect_day)
+  
+wirelessData5a$connect_day <- ifelse(wirelessData5a$connect_hour == '0', wirelessData5a$connect_day + 1, wirelessData5a$connect_day)
+```
+
+
+```{r}
+get_doy <- function(x) {
+  switch(as.character(x),
+         "7" = 182,
+         "8" = 213,
+         "9" = 244,
+         "10" = 274,
+         "11" = 305,
+         "12" = 335,
+         {
+           print(x)
+           x
+         })
+}
+```
+
+
+```{r}
+wirelessData2b <- na.omit(wirelessData2b)
+wirelessData2b$disconnect_doy <- unlist(sapply(wirelessData2b$disconnect_month, get_doy)) + wirelessData2b$disconnect_day
+```
+
+
+
+```{r}
+# Convert 0 to 24
+wirelessData2 <- wirelessData
+
+# wirelessData2$disconnect_day <- ifelse(wirelessData2$disconnect_hour == '0', wirelessData2$disconnect_day + 1, wirelessData2$disconnect_day)
+# 
+# wirelessData2$connect_day <- ifelse(wirelessData2$connect_hour == '0', wirelessData2$connect_day + 1, wirelessData2$connect_day)
+
+# Re-calculate duration
+colLen = length(wirelessData[,1])
+
+wirelessData2b <- wirelessData2
+wirelessData2b$connect_minute <- as.numeric(wirelessData2b$connect_minute)
+wirelessData2b$connect_hour <- as.numeric(wirelessData2b$connect_hour)
+wirelessData2b$connect_day <- as.numeric(wirelessData2b$connect_day)
+wirelessData2b$connect_month <- as.numeric(wirelessData2b$connect_month)
+
+wirelessData2b$disconnect_minute <- as.numeric(wirelessData2b$disconnect_minute)
+wirelessData2b$disconnect_hour <- as.numeric(wirelessData2b$disconnect_hour)
+wirelessData2b$disconnect_day <- as.numeric(wirelessData2b$disconnect_day)
+wirelessData2b$disconnect_month <- as.numeric(wirelessData2b$disconnect_month)
+
+# wirelessData2b$disconnect_hour <- ifelse(
+#   (wirelessData2b$disconnect_hour == 0 || wirelessData2b$disconnect_hour == 12) ,
+#   (wirelessData2b$disconnect_hour + 12),
+#   wirelessData5a$disconnect_hour)
+
+# wirelessData2b$disconnect_hour <- ifelse(
+#   (wirelessData2b$disconnect_hour == 12 || wirelessData2b$disconnect_hour == 0),
+#   wirelessData5a$disconnect_hour + 12,
+#   wirelessData5a$disconnect_hour)
+# 
+wirelessData2b$disconnect_hour <- ifelse(
+  wirelessData2b$disconnect_hour == 12,
+  24,
+  wirelessData2b$disconnect_hour)
+
+
+wirelessData2b$disconnect_hour <- ifelse(
+  wirelessData2b$disconnect_hour == 0,
+  12,
+  wirelessData2b$disconnect_hour)
+# 
+
+# wirelessData2b$connect_hour <- ifelse(
+#   (wirelessData2b$connect_hour == 0 || wirelessData2b$connect_hour == 12) , 
+#   (wirelessData2b$connect_hour + 12), 
+#   wirelessData5a$connect_hour)
+
+print(length(wirelessData2b[,1]))
+wirelessData2b <- na.omit(wirelessData2b)
+print(length(wirelessData2b[,1]))
+
+wirelessData2b$disconnect_doy <- unlist(sapply(wirelessData2b$disconnect_month, get_doy)) + wirelessData2b$disconnect_day
+
+wirelessData2b$duration_mins <- wirelessData2b$disconnect_minute - wirelessData2b$connect_minute +
+      (wirelessData2b$disconnect_hour - wirelessData2b$connect_hour) * 60 +
+      (wirelessData2b$disconnect_doy - wirelessData2b$connect_doy) * 60 * 24
+
+# A couple weird cases overlapping the start of daylight savings time
+# wirelessData2b$duration_mins[307133:307138] <- wirelessData2b$duration_mins[307133:307138] + 60
+
+# Remove cases with connection tim
+     
+
+```
+
+
+```{r}
+d <- density(wirelessData2b$duration_mins)
+plot(d, main="Density Plot of Connection Durations in Minutes")
+hist(wirelessData2b$duration_mins)
+
+wirelessData2c <- wirelessData2b[wirelessData2b$duration_mins < 600,]
+d2 <- density(wirelessData2c$duration_mins)
+plot(d2, main="Density Plot of Connection Durations; Max 600 min")
+# 
+# plot(wirelessData2c$duration_mins, wirelessData2c$avgSigQual, main="Insert useful title")
+# plot(wirelessData2b$duration_mins, wirelessData2b$avgSigQual, main="Insert useful title")
+# 
+# 
+# plot(wirelessData2c$duration_mins, wirelessData2c$avgKbps, main="Insert useful title")
+plot(wirelessData2b$duration_mins, wirelessData2b$avgKbps, main="Kbps vs Connection Duration", xlab="Connection Duration in Minutes", ylab="Average Kbps")
+
+```
+
+Interesting.  A fair number of big ones.  Let's get rid of them.
+
+
+```{r}
+wirelessData0 <- wirelessData2c[wirelessData2c$disconnect_hour == 0,]
+wirelessData12 <- wirelessData2c[wirelessData2c$disconnect_hour == 12,]
+d0 <- density(wirelessData0$duration_mins)
+plot(d0)
+d12 <- density(wirelessData12$duration_mins)
+plot(d12)
+
+wirelessData11 <- wirelessData2c[wirelessData2c$disconnect_hour == 11,]
+d11 <- density(wirelessData11$duration_mins)
+plot(d11)
+
+# plot(wirelessData2c$duration_mins, wirelessData2c$avgSigQual, main="Insert useful title")
+```
+
+WHAT.  We should... fix this?
+
+```{r}
+# A couple weird cases overlapping the start of daylight savings time
+wirelessData2b$duration_mins[307133:307138] <- wirelessData2b$duration_mins[307133:307138] + 60
+
+
+```
+
+
+```{r}
+# Summary of data Analysis
+vec = c(689203, 601074, 560763, 543141)
+labs = c("Initial", "Staff Removed", "NAs Omitted", "Long Connections Removed")
+help <- data.frame()
+help$vec = vec
+help$labs = labs
+plot(vec ~ labs, help)
+```
+
+
+
+
+
+**Functionality**: Plot connection times, see if any seem especially weird.
+**Purpose**: Seee if there are any which should be omitted
+** Results**: There are a few outliers. Let's cutoff at 480 (10 hrs). Also, what???
+
+```{r}
+wirelessData4a <- wirelessData[wirelessData$duration_mins >= 0,]
+d <- density(wirelessData4a$duration_mins)
+plot(d)
+d2 <- density(wirelessData3a$duration_mins)
+plot(d2)
+```
+
+```{r}
+plot(wirelessData2a$avgKbps, wirelessData2a$duration_mins, main="Scatterplot Example")
+
+plot(wirelessData3a$duration_mins, wirelessData3a$avgKbps, main="Scatterplot Example")
+
+plot(wirelessData3a$duration_mins, wirelessData3a$avgSigQual, main="Scatterplot Example")
+
+#, 
+ #  xlab="Duration Mins", ylab="Average Kbps ", pch=19)
+
+```
+
+
+
+Graveyard
+```{r}
+# https://stackoverflow.com/questions/25264461/find-local-minimum-in-bimodal-distribution-with-r 
+# library(ggplot2)
+# # k means stuff
+#       sig <- data.frame(signal)
+#       colnames(sig) <- "X"
+#       km <- kmeans(sig, centers=2)
+#       sig$clust <- as.factor(km$cluster)
+#       ggplot(sig,  aes(x=X)) + 
+#   geom_histogram(aes(fill=clust,y=..count../sum(..count..)),
+#                      binwidth=0.5, color="grey50")+
+#   stat_density(geom="line", color="red")
+```
+
+
+```{r}
+par(mar=c(20,5,2,1))
+plot(factor(X2016FallSemWireless$WAPID), las=3, main="Number of Connections by Location", ylab="Frequency")
+```
+
